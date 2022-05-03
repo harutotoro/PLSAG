@@ -1,288 +1,245 @@
+\documentclass[usletter,11pt,english,openany]{article}
+
+%Primary packages
+\usepackage{fancyvrb}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[pdftex]{graphicx}
 
 
-\documentclass[letterpaper,10pt]{article} 
-%% if A4 paper needed, change letterpaper to A4
+% Useful packages:
 
-\usepackage{osameet3} %% use version 3 for proper copyright statement
+% Advanced mathematical formulas and symbols
+% -------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{bm}
 
-%% provide authormark
+% Footnotes
+% -------------------------------------
+\usepackage[stable,splitrule]{footmisc}
+
+% Color management package
+% -------------------------------------
+\usepackage[usenames,dvipsnames]{xcolor}
+
+% Control line spacing 
+% -------------------------------------
+% putting this between footmisc and hyperref seemed to fix broken footnote links
+\usepackage{setspace}
+\AtBeginDocument{\let~=\nobreakspace}
+\spacing{1.1}
+
+% Advanced crossreferencing commands 
+% -------------------------------------
+% Default settings:
+% \usepackage[]{hyperref}
+% Disable link coloring:
+% \usepackage[colorlinks=false]{hyperref}
+% Enable link coloring with personalized colors, make page number (not text) be link on the Table Of Contents (needs color package)
+\PassOptionsToPackage{hyphens}{url} %for url linebreaks
+\usepackage[colorlinks=true, linkcolor=BlueViolet, citecolor=BlueViolet, urlcolor=BlueViolet,linktocpage=true]{hyperref}
+
+%% more footnote stuff
+\usepackage{footnotebackref}
+
+\let\oldFootnote\footnote
+\newcommand\nextToken\relax
+
+\renewcommand\footnote[1]{%
+    \oldFootnote{#1}\futurelet\nextToken\isFootnote}
+
+\newcommand\isFootnote{%
+    \ifx\footnote\nextToken\textsuperscript{,}\fi}
+    
+% note for tables (with tabularx): if all table footnotes can't fit on the same page as the table, then they will all be shoved to the next page (seems like a bug); solution: use '\newpage' to put the table on a new page so footnotes fit (won't work if there are just too many footnotes)
+
+
+% Flexible interface to page dimensions
+% -------------------------------------
+% Default settings:
+% \usepackage[]{geometry}
+% Set specific margins:
+\usepackage{marginnote}
+\usepackage[outer=2.62cm,inner=2.62cm,top=3cm,bottom=2.75cm, marginparwidth=2.1cm, marginparsep=.35cm]{geometry}
+
+
+%Tree drawing
+\usepackage{tikz}
+\usetikzlibrary{trees, arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
+
+\usepackage[edges,linguistics]{forest}
+
+
+% Tabular package extensions
+% -------------------------------------
+% \usepackage{array}
+% \usepackage{multirow}
+
+% Modify chapter level headings
+% -------------------------------------
+\usepackage[Sonny]{fncychap}
+\usepackage{fancyhdr}
+\fancyhead{}
+\fancyfoot{}
+\rhead[\small \leftmark]{\small \thepage}
+\lhead[\small \thepage]{\small \leftmark}
+\setlength{\headheight}{13.2pt}
+
+\ChRuleWidth{1pt}
+\ChNameAsIs
+\ChNameUpperCase
+\ChNameVar{\Large\bf}
+\ChNumVar{\Huge} 
+\ChTitleVar{\LARGE}
+
+% Modify appendix and add subappendices environments
+% -------------------------------------
+\usepackage{appendix}
+
+% Paragraph indentation and skip
+% -------------------------------------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.7ex plus 0.5ex minus 0.8ex}
+
+\usepackage{xspace}
+\newcommand\nd{\textsuperscript{nd}\xspace}
+\newcommand\rd{\textsuperscript{rd}\xspace}
+\newcommand\rds{\textsuperscript{rds}\xspace}
+\newcommand\nth{\textsuperscript{th}\xspace}
+\newcommand\nths{\textsuperscript{ths}\xspace}
+
+% List spacing
+\usepackage{enumitem}
+\setlist[itemize]{topsep=0pt}
+\newcommand{\listspace}{-.4em}
+
+% Separate document into parts
+\usepackage{titlesec}
+
+% Copyright and Restricted tags
+\usepackage{textcomp}
+%$^{\tiny{\textregistered}}$
+%$^{\tiny{\textcopyright}}$
+
+% Advanced tables
+\usepackage{ltablex}
+\usepackage{ragged2e}
+
+% add tabularx column type to prevent bad spacing when text wraps in a cell
+\newcolumntype{R}{>{\RaggedRight\arraybackslash}X}
+
+% Figure and Table reference numbering to be ChapterNum-FigNum
+% Doesn't work for trees (yet?) so trees should be called Trees/Diagrams instead of Figures
+\renewcommand\thetable{\thesection-\arabic{table}}
+\renewcommand\thefigure{\thesection-\arabic{figure}}
+
+% captions for figures
+\usepackage[labelfont=bf]{caption}
+
+% Line numbering for drafts only
+%\usepackage[pagewise,modulo,displaymath,mathlines]{lineno}
+%\linenumbers
+
+%%Title page elements
+
 \newcommand\authormark[1]{\textsuperscript{#1}}
 
-%% standard packages and arguments should be modified as needed
-\usepackage{amsmath,amssymb}
-\usepackage[colorlinks=true,bookmarks=false,citecolor=blue,urlcolor=blue]{hyperref} %pdflatex
-%\usepackage[breaklinks,colorlinks=true,bookmarks=false,citecolor=blue,urlcolor=blue]{hyperref} %latex w/dvipdf
+\newcommand\MEETtitle[1]{\LARGE \bf \hskip2.25pc \parbox{.8\textwidth}{ \noindent%
+   \LARGE \bf \begin{center} #1 \end{center}\rm } \vskip.1in \rm\normalsize }
+
+\newcommand\MEETauthor[1]{\hskip2.25pc \parbox{.8\textwidth}{ \noindent%
+   \normalsize \bf \begin{center} #1 \end{center}\rm } \vskip-1pc }
+
+\newcommand\MEETaddress[1]{\hskip2.25pc \parbox{.8\textwidth}{ \noindent%
+   \footnotesize \it \begin{center} #1 \end{center}\rm }  \normalsize \vskip-.2cm }
+
+\newcommand\MEETemail[1]{\vskip-.3cm \parskip0pc\hskip2.25pc \footnotesize%
+   \parbox{.8\textwidth}{\begin{center}\textit{#1}  \end{center} } \normalsize  \vskip-.2cm}
+
+\let\Title\MEETtitle
+\let\Author\MEETauthor
+\let\affil\MEETaddress
+\let\address\MEETaddress
+\let\email\MEETemail
+
+% ___________________________________________________________________________________________________________
+%
+%                  		PDF INFO
+% ___________________________________________________________________________________________________________
+
+
+
+
+\hypersetup{
+    pdftitle = {PLSAG}
+}
+
+
+%\title{Partial Linkable Spontaneous Anonymous Group (PLSAG) Signatures\\ \vspace{.3cm}
+%\large Draft v0.1\vspace{-.715cm}}
+%\author{koe\footnote{Author `koe' worked on this document partly as an employee of MobileCoin, Inc.} \texttt{ ukoe@protonmail.com}}
+
+
+
+
+%\date{\vspace{-.5cm}\today\vspace{-1cm}}
+
 
 \begin{document}
+% ------ Title page ------------------------
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
 
-\title{Partial Linkable Spontaneous Anonymous Group (PLSAG) signatures}
+%\pagenumbering{roman}
+%\pagestyle{plain}
+%\thispagestyle{empty}
 
-% \author{Author name(s)}
-% \address{Author affiliation and full address}
-% \email{e-mail address}
-%%Uncomment the following line to override copyright year from the default current year.
-%\copyrightyear{2022}
+\pagenumbering{arabic}
+%\pagestyle{fancy}
 
-\author{Yamamoto Haruto,\authormark{1,*} Chen-Mou Cheng,\authormark{1} and Masahiro Mambo\authormark{1}}
-
-\address{\authormark{1} Kanazawa University, School of Information and Communication Engineering, Information Security Lab}
-\address{\authormark{2} }
-
-\email{\authormark{*}haruto.y0327@gmail.com} %% email address is required
-
+%\maketitle
 
 
-\begin{abstract}
-In this paper, we present a linkable ring signatures algorithm called PLSAG signatures for Monero, which is a pripacy-preserving blockchain. The PLSAG is Schnorr-like Signatures and has ability to attach linkability to any lines in multi dimensional key set.
-We suppose basically PLSAG signautres is implemented for Ring confidential transaction on Monero, and it can reduce signature size compared to current linkable ring signatures on Monero.
-Our signatures can be produced spontaneously without trusted setup. 
-The main concept in our algorithm is that every transaction on Monero only requires one ring signature even if there are many inputs to a transaction by a key aggregation since the current linkable ring signatures for Monero requires as many ring signatures as there are inputs to the transaction and it linearly increases the number of signature data and more data must be stored on the blockchain.
+\Title{Partial Linkable Spontaneous Anonymous Group (PLSAG) signatures}
+\vspace{-0.8cm} \Author{Haruto Yamamoto,\authormark{1,*} Chen-Mou Cheng,\authormark{1} and Masahiro Mambo\authormark{1}}
+\vspace{-0.4cm} \address{\authormark{1} Institute of Science and Engineering, Kanazawa University, Kanazawa, Japan}
+%%\address{\authormark{2} }
+\vspace{-0.2cm}\email{\authormark{*}haruto.y0327@gmail.com} %% email address is required
+\begin{center} \vspace{-0.6cm} \today \vspace{0.4cm}  \end{center}
 
-\end{abstract}
+% ___________________________________________________________________________________________________________
+%
+%             			CONTENT
+% ___________________________________________________________________________________________________________
 
-\section{Introduction}
-In recent years, cryptocurrencies and blockchains, represented by Bitcoin and Ethereum, have been penetrating society. Blockchain is a technology to improve the reliability of decentralized networks, and has strong advantages against current centralized network structures providing traceability, transparency, tamper resistance.
-In addition, due to the lack of highlevel privacy protection and anonymity in common cryptocurrencies, there are privacy-preserving blockchains(PPB), represented by Monero and Zerocash , that can hide the amount of money and the anonymity of the sender and receiver.
-Monero is based on Cryptonote which is one of the protocols for PPB and includes many cryptographic techniques such as One-time addresses, Ring Confidential Transactions [7], Bulletproofs[5], and Linkable Ring signatures to provide a strong privacy level.\\
-\\
-Ring CT is a technology based on ring signatures and Pedersen commitments
-that is part of a PPB protocol called CrtptoNote. It is able to hide the
-amount of money in transactions. Bulletproofs, which are range proofs, are
-also necessary for Ring CT to work properly on Monero. the cryptographic key
-point of Ring CT is Pedersen commitments on ECDLP. The special ability of
-Pedersen commitment is Additively homomorphic commitments. It is possible
-to compute between commitments while keeping the values confidential. We
-prepare two generators G,H on ECC, x which is blinding factor, and a, which
-is data(the amount of money), then Pedersen commitment is C(x,a) =xG+aH,
-and if the sum of commitments for input is equal to the sum of commitments
-for output, a verifier can verify that this transaction is legitimate without revealing
-the amount of money. In Monero, the amount of money is entered
-when a sender sent money. If negative or very large values are entered with
-the malicious person at that time, Ring CT does not work properly, and an
-attack will be allowed. Range proof proves that the input values are within a
-certain range without revealing the amount of money.\\
-\\
-LSAG signatures are sort of group signatures and ring signatures. Basic
-group signatures depend on a group secret and are created between limited
-members by initial setup. This feature is inconvenient for Monero since it is
-better for a sender to choose ring members by himself. Therefore, Monero
-requires spontaneousness that a sender is able to choose ring members by
-himself.
-\subsection{Our Contribution}
-We provide a new linkable ring signatures(PLSAG) which can add linkability to any lines in multi dimensional key set. Futhermore, We apply PLSAG to Monero's ring signatures, and add linkaility to odd-numbered lines in multi dimensional key set to satisfy a requirement of Ring CT. how much this sig can reduse ??? depends on n and m.
+%\newpage
 
+% -------- Chapters ----------------------------
 
-\subsection{Related Work}
-%%MLSAG
-CLSAG signatures use a multilayer key set, and improve version of MLSAG in Monero[8].
-The signer has m private keys in the key set, but the only first key image of the first private key has linkability,
-and the other key images of the other private keys called "Auxiliary key images" do not have linkability.
-actually, the Key images from the only first private are necessary for Monero on MLSAG, so linkability is removed from the other key images.It makes the size of the CLSAG signature reduced compared with MLSAG signatures,
-since CLSAG signatures only includes $c_{1}$and n random numbers, but MLSAG Signatures includes $c_{1}$ and $n\cdot m$ random numbers.Currently, CLSAG Signatures are used as the ring signatures on Monero.\\
-Triptych is also a Linkable Ring Signature based on zero-knowledge proofs without a trusted setup, but the strong advantage is that the signature size increases with logarithmic size [3].
-The triptych will officially be implemented on Monero in near future.  
-Triptych applies Pedersen Commitment and sigma protocol and uses a new way to aggregate public keys on Sigma protocol to construct logarithmic sized Linkable ring signature.
+\input{content}
 
-\section{Preliminaries}
-Let n be the number of anonymity set size for transactions. Let m be the number of inputs. 
-Let R be a set of public key $K_{i,j} [K_{1,1},K_{1,2},\ldots,K_{n,6}]$
-Let $k_{i,j}$ be Private key. Define Public key $K_{i,j}=k_{i,j}G$\\
-%%Let ${\cal H}_{n}$ be hash function to map to integer in the range 0 to l-1. Let ${\cal H}_{p}$ be hash function to map to curve point.
-Let G denote a finite cyclic group over a finite field $F_p$ for some prime p, with group generator G.\\
-Let $H_n$ : $ \{0,1 \} \rightarrow F_p$ and $H_p$ : $ \{0,1 \} \rightarrow G$ be two independent cryptographic
-hash functions modeled as random oracles.
-%schhhor-sig
-\subsection{Definition}
-LSAG
-linkability
-Unforgeability?
-\section{Construction of PLSAG}
-In this section, we expalin the algorithm of PLSAG.
-\subsection{Partial Linkable SAG (PLSAG) signatures}
-In Monero, a ring signature is used to prove that transactions are legitimate while the amount of money is kept secret.
-In this study, we propose an algorithm for PLSAG (Partial Linkable Spontaneous Anonymous Group) signatures,
-which is an improvement of the CLSAG signature, a ring signature currently implemented on Monero.
-Ring signatures have the ability that the verifier can not identify who among the ring members created the signature.
-PLSAG signatures have the characteristics of ring signatures, such as Unforgetability and Signer Ambiguity,
-and the ability to add linkability to the key images of the odd-numbered private keys in the $(n\cdot m)$key set.
-Linkability means that if the key image generated by the private key does not match any other key images generated on Monero in the past,
-it can be confirmed that the private key has not been used and a double-spending attack can be prevented.\\
-\\
-$\bullet $ The advantages compared to CLSAG signatures\\
-\quad In CLSAG signatures, Linkability can be added to the only first key images of the first private key in the $(n\cdot m)$key set,
-but in PLSAG signatures, we consider adding Linkability to odd-numbered private keys in the $(n\cdot m)$key set.
-In our algorithm PLSAG, the number of random numbers is reduced compared to CLSAG by aggregating the public keys and key images.\\
-\quad CLSAG signatures require as many signatures as there are inputs,
-so the size of CLSAG signatures increases linearly with the number of inputs.
-In Monero, 2-CLSAG is used where the first line is the private keys of the transaction
-and the second line is used to prove the validity of the amount remittance.
-However, we designed PLSAG like one PLSAG signature is sufficient for one transaction regardless of the number of inputs.
-First, PLSAG signatures use 2m-CLSAG, with the private keys of the transactions on the odd-numbered lines
-and the validity of the amount of remittance on the even-numbered lines.
-Furthermore, it can prevent double-spending attacks by adding linkability to the odd-numbered lines.
-By extending the $(n\cdot m \cdot 2)$public key set to multiple m inputs and aggregating the public key set and key images,
-then PLSAG signatures can reduce the number of random numbers.
+% ___________________________________________________________________________________________________________
+%
+%				BACKMATTER
+% ___________________________________________________________________________________________________________
 
-\subsection{Algorithm of PLSAG}
-This section explains the Algorithm of the PLSAG signatures scheme. Figure 1 illustrates how to compute $c_{i}$ following the ring.
-In this algorithm, we consider that there are three transactions for the input. 
-\vskip\baselineskip
+% -------- Bibliography -----------------------
 
-\textbf{Key Generation} $\rightarrow  (s_k ,p_k) $\\
-a secret key(sk) and public key(pk) are produced fallowing this relation. 
-$s_k=(z_0,z_1,z_2,...,z_d-1) \leftrightarrow (F_p)_d$\\
-$p_k = s_k \cdot G$\\
+\addcontentsline{toc}{chapter}{Bibliography}
+{\footnotesize
+\bibliographystyle{plain}
+\bibliography{references.bib}
+}
 
-\textbf{Signing Algorithm}
-\begin{enumerate}
-  \item Calculate Key Images$\tilde{K}_{s,j}=k_{\pi,j}{\cal H}_{p} (K_{\pi,s})$ for s=1,3,5, j=1,\ldots,6.
-  \item Generate random $\alpha,r_{1},\ldots,r_{n}$ except $r_{\pi}$.
-  \item Calculate aggregate public keys, key images, public keys.
-  $$ W_{i}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*K_{i,j} $$
-  $$ \tilde{W}_{1}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*\tilde{K}_{1,j} $$
-  $$ \tilde{W}_{2}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*\tilde{K}_{3,j} $$
-  $$ \tilde{W}_{3}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*\tilde{K}_{5,j} $$
-  \item Compute $c_{\pi+1}={\cal H}_{n}(T_{c}||R||m||\alpha G||\alpha {\cal H}_{p}(K_{\pi,1})||\alpha {\cal H}_{p}(K_{\pi,3})||\alpha {\cal H}_{p}(K_{\pi,5})) $
-  \item Compute for $i=\pi +1,\pi +2,\ldots,n,1,2,\ldots,\pi -1$, replacing $n+1 \rightarrow 1$\\
-  $c_{i+1}={\cal H}_{n}(T_{c}||R||m||r_{i}G+c_{i}W_{i}||r_{i}{\cal H}_{p}(K_{i,1})+c_{i} \tilde{W}_{1}||r_{i}{\cal H}_{p}(K_{i,3})+c_{i} \tilde{W}_{2}||r_{i}{\cal H}_{p}(K_{i,5})+c_{i} \tilde{W}_{3}) $.
-  \item Define $r_{\pi}=\alpha - c_{\pi} w_{\pi}$ where $w_{\pi}=\sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*k_{\pi,j}$\\
-  The signature is $\sigma (c_{1},r_{1},\ldots,r_{n})$ with key images $\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6}$.
-\end{enumerate}
+% -------- Last page -------------------------
 
-\textbf{Verifying Algorithm}
-\begin{enumerate}
-  \item Check all Key Images $l\tilde{K}_{i,s}=0$.
-  \item Calculate aggregate public keys, key images.
-  \item Compute for $i=1,\ldots,n$, replacing $n+1 \rightarrow 1$\\
-  $c'_{i+1}={\cal H}_{n}(T_{c}||R||m||r_{i}G+c_{i}W_{i}||r_{i}{\cal H}_{p}(K_{i,1})+c_{i} \tilde{W}_{1}||r_{i}{\cal H}_{p}(K_{i,3})+c_{i} \tilde{W}_{2}||r_{i}{\cal H}_{p}(K_{i,5})+c_{i} \tilde{W}_{3}) $.
-  \item If $c'_{1}=c_{1}$ then the signature is valid.
-\end{enumerate}
-\vskip\baselineskip
-
-\begin{figure}[hbtp] %Signature sizes for 10 anonymity set size with M Input
-  \begin{center}
-      \includegraphics[width=14cm]{algo1.png}
-      \caption{PLSAG Algorithm}
-  \end{center}
-  \end{figure}
-
-
-\subsection{Correctness}
-This chapter checks if PLSAG Signature works well or not and proves why it works.
-To speak simple, comparing $c_{i}$ between Signing and Verifying algorithm makes this signature works well from a cryptographic aspect.\\
-$\bullet$ If $i\neq \pi $ then, clearly the values $c'_{i+1}=c_{i+1}$, 
-because the verifying algorithm uses same $c_{1}$ at the beginning of start value and same calculation algorithm.
-$\bullet$ If $i=\pi$ then, since $r_{\pi}=\alpha - c_{\pi}w_{\pi}$\\
-$$r_{\pi}G+c_{\pi}W_{\pi}=(\alpha - c_{\pi}w_{\pi})G+ c_{\pi}W_{\pi}=\alpha G - c_{\pi}w_{\pi}G + c_{\pi}W_{\pi}=\alpha G$$
-And,
-$$r_{\pi}{\cal H}_{p}(K_{i,1})+c_{\pi} \tilde{W}_{1}= (\alpha - c_{\pi}w_{\pi}){\cal H}_{p}(K_{i,1})+c_{\pi} \tilde{W}_{1}= \alpha {\cal H}_{p}(K_{i,1}) - c_{\pi}w_{\pi}{\cal H}_{p}(K_{i,1})+c_{\pi} \tilde{W}_{1}= \alpha {\cal H}_{p}(K_{i,1})$$
-Because of $w_{\pi}G=W_{\pi}$,$w_{\pi}{\cal H}_{p}(K_{i,1})=\tilde{W}_{1}$, $w_{\pi}{\cal H}_{p}(K_{i,3})=\tilde{W}_{2}$,$w_{\pi}{\cal H}_{p}(K_{i,5})=\tilde{W}_{3}$.\\
-Therefore, it is also clear to find $c_{\pi + 1}=c'_{\pi +1}$.
-
-\section{Security}
-
-\section{Efficiency}
-Table 1 compares signature size between existing LSAG and proposed PLSAG. 
-n is the number of anonymity set, and m is the number of inputs.
-The number of the random numbers is used for calculation ring signatures, and the number of Key Images is used for avoiding Double spending.
-Basically, the sum of the size of random numbers and key images is the signature size.
-Firstly, the size of the CLSAG signature is perfectly smaller than that of the MLSAG signature.
-Secondly, the CLSAG signature is smaller than the PLSAG signature for the number of key Images but larger than the PLSAG signature for the number of random numbers.\\
-\quad The signature size of PLSAG with existing linkable ring signatures (MLSAG and CLSAG) and Triptych, which will be implemented in Monero, is compared with N Anonymity set size and 3 inputs, in Figure 2.
-For large anonymity set size $(N>64)$, the signature size of Triptych is the smallest, and PLSAG is smaller than that of MLSAG and CLSAG.
-On the other hand, for small anonymity set size $(N<64)$, the signature size of PLSAG is smaller than that of Triptych.\\
-\quad Figure 3 illustrates signature sizes for four LSAG with 10 Anonymity set sizes and M inputs.
-It is obvious that the signature size of Triptych is smaller than that of CLSAG and MLSAG in all ranges.
-The signature size of PLSAG is the smallest among 4 LSAG for the small number of input$(M<5)$, however that of PLSAG increases with the square of M.
-Thus, the signature size of PLSAG is larger than other signatures for the large number of input$(M>10)$.
-
-\begin{table}[hbtp]  %Comparison size and signature
-  \caption{size and signature}
-  \label{table:data_type}
-  \centering
-  \begin{tabular}{|l|cc|}
-    \hline
-    Ring Signature  & Random Numbers (F) &  Key Images (G) \\
-    \hline
-    MLSAG  & $(2n+1)m$  & $2m$ \\
-    CLSAG  & $(n+1)m$   & $2m$ \\
-    PLSAG  & $n+1$  & $2m^2$ \\
-    Triptych  & $(\lg (n)+3)m$   &  $(2\lg (n)+6)m$ \\
-    \hline
-  \end{tabular}
-\end{table}
-
-\begin{figure}[htbp]
-    \begin{minipage}[b]{0.45\linewidth}
-        \centering
-        \includegraphics[keepaspectratio, scale=0.45]{result_n_m=3.png}
-        \caption{anonymity set size N with 3 inputs}
-      \end{minipage}
-      \begin{minipage}[b]{0.45\linewidth}
-        \centering
-        \includegraphics[keepaspectratio, scale=0.45]{result_n=10_m.png}
-        \caption{10 anonymity set size with M Input}
-      \end{minipage}
-\end{figure}
-
-\section{Discussion}
-Anonymity set size is often around 10 in Monero, and thus it suggests that PLSAG is able to reduce the signature size the most in the limited range.
-comparing between CLSAG and PLSAG, focusing on figure1 and table1, the reason why the signature size of CLSAG is smaller than that of CLASG is that
-the size of key images in PLSAG increases with the square of m, and the size of random numbers in CLSAG increases with the square of n, 
-since basically the number of anonymity set is much larger than the number of inputs. 
-However, if there are inputs to one transaction, it becomes a big disadvantage for PLSAG signatures.
-According to table 1, it is clear that the size of CLSAG and PLSAG are the same size in the case that there is only one input to the transaction.
-In this study, PLSAG, which gives Linkability to odd-numbered rows, is found to be an intermediate relationship between CLSAG,
-which gives Linkability only to the first row, and MLSAG, which gives Linkability to all rows.
-In addition, PLSAG can add Linkability to any row, such as even-numbered rows and the first 3 rows, with only a slight modification of the proposed algorithm.
-However, as the number of rows to which linkability is to be added increases, the required key image space also increases.\\
-\quad The size of Triptych is efficient even if there are many inputs and a large anonymity set size,
-on the other hand, Triptych has the disadvantage that the computational complexity is more expensive than the other signatures due to a large number of multi-scalar multiplications
-with the assumption that multi-scalar multiplications need more computational power than hash calculations.
-
-\section{Conclusion}
-We propose a linkable ring signatures algorithm, PLSAG, for Monero which can reduce the signature size in a limited range $(6<N<64)$ compared to the current linkable ring signatures,every transaction need one PLSAG signature regardless of the number of inputs, since PLSAG signatures can add linkability to odd-numbered key images of the private key in the public key set. But the size for key images increases with the square of M and the size of signatures also increases linearly with anonymity set size, so PLSAG signatures have a demerit in the case that there are many inputs to the transaction.
-
-
-\begin{thebibliography}{99} %% use BibTeX or add references manually
-
-\bibitem{label1}
-KOE, Kurt M. Alonso, Sarang Noether, 
-\textquotedblleft Zero to Monero: Second Edition\textquotedblright, 
-April 2020.
-
-\bibitem{label1}
-Sarang Noether, Brandon Goodell,
-\textquotedblleft Triptych: logarithmic-sized linkable ring signatures with applications\textquotedblright, 
-DPM/CBT@ESORICS 2020, 2020.
-
-\bibitem{label1}
-Tsz Hon Yuen, Shifeng Sun, Joseph K. Liu, Man Ho Au, Muhammed F. Esgin, Qingzhao Zhang, Dawu Gu,
-\textquotedblleft RingCT 3.0 for Blockchain Confidential Transaction: Shorter Size and Stronger Security \textquotedblright, 
-Financial Cryptography 2020, 2020.
-
-\bibitem{label1}
-Benedikt Bunz, Jonathan Bootley, Dan Bonehz, Andrew Poelstrax, Pieter Wuille, and Greg Maxwellk
-\textquotedblleft Bulletproofs: Short Proofs for Confidential Transactions and More \textquotedblright, 
-IEEE Symposium on Security and Privacy 2018, IEEE, pages 315-334, 2018.
-
-\bibitem{label1}
-Xiaoqi Li, Peng Jiang, Ting Chen, Xiapu Luo, and Qiaoyan Wen
-\textquotedblleft A survey on the security of blockchain systems \textquotedblright, 
-Future Generation Computer Systems Volume 107, Elsevier, Pages 841-853, June 2020.
-
-\bibitem{label1}
-Shen Noether, Adam Mackenzie, and Monero Core Team
-\textquotedblleft Ring Confidential Transactions \textquotedblright, 
-Cryptology ePrint Archive, Report 2015/1098, 2015
-
-\bibitem{label1}
-Brandon Goodell, Sarang Noether, and Arthur Blue
-\textquotedblleft Concise Linkable Ring Signatures and Forgery Against Adversarial Keys \textquotedblright,
-Cryptology ePrint Archive, Report 2019/654, 2019
-
-
-\end{thebibliography}
 
 
 \end{document}
