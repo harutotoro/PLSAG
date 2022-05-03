@@ -1,0 +1,222 @@
+%\section{Abstract}
+%\label{sec:abstract}
+\begin{abstract}
+    In this paper, we present a linkable ring signatures algorithm called PLSAG signatures for Monero, which is a pripacy-preserving blockchain. The PLSAG is Schnorr-like Signatures and has ability to attach linkability to any lines in multi dimensional key set. We suppose basically PLSAG signautres is implemented for Ring confidential transaction on Monero, and it can reduce signature size compared to current linkable ring signatures on Monero. Our signatures can be produced spontaneously without trusted setup. The main concept in our algorithm is that every transaction on Monero only requires one ring signature even if there are many inputs to a transaction by a key aggregation since the current linkable ring signatures for Monero requires as many ring signatures as there are inputs to the transaction and it linearly increases the number of signature data and more data must be stored on the blockchain.
+\end{abstract}
+
+
+\section{Introduction}
+    Nowadays, cryptocurrencies and blockchains, represented by Bitcoin and Ethereum, have been penetrating society. Blockchain is a technology to improve the reliability of decentralized networks, and has strong advantages against current centralized network structures providing traceability, transparency, tamper resistance. Furthermore, due to the lack of high-level privacy protection and anonymity in general cryptocurrencies, there are privacy-preserving blockchains(PPB), represented by Monero and Zerocash , that can hide the amount of money and the anonymity of the sender and receiver. Monero ~\cite{ztm-1} has the largest market capitalization of privacy-preserving blockchains, and is based on Cryptonote ~\cite{cryptoNote} which is one of the protocols for PPB and includes many cryptographic techniques such as One-time addresses, Ring Confidential Transactions ~\cite{RingCT-for-Monero}, Bulletproofs ~\cite{Bulletproofs}, and Linkable Ring signatures to provide a strong privacy level.
+    
+    \qquad Ring CT is a technology based on ring signatures and Pedersen commitments that is part of a PPB protocol called CrtptoNote. It is able to hide the amount of money in transactions. Bulletproofs, which are range proofs, are also necessary for Ring CT to work properly on Monero. the cryptographic key point of Ring CT is Pedersen commitments on ECDLP. The special ability of Pedersen commitment is Additively homomorphic commitments. It is possible to compute between commitments while keeping the values confidential. We prepare two generators G,H on ECC, x which is blinding factor, and a, which is data(the amount of money), then Pedersen commitment is C(x,a) =xG+aH, and if the sum of commitments for input is equal to the sum of commitments for output, a verifier can verify that this transaction is legitimate without revealing the amount of money. In Monero, the amount of money is entered when a sender sent money. If negative or very large values are entered with the malicious person at that time, Ring CT does not work properly, and an attack will be allowed. Range proof proves that the input values are within a certain range without revealing the amount of money.
+    
+    \qquad LSAG signatures are sort of group signatures and ring signatures. Basic group signatures depend on a group secret and are created between limited members by initial setup. This feature is inconvenient for Monero since it is better for a sender to choose ring members by himself. Therefore, Monero requires spontaneousness that a sender is able to choose ring members by himself. Basic LSAG signature has four security notions which are Unforgeability, Linkability, Anonymity and Non-Slanderability ~\cite{Non-Slanderability}.
+    
+\subsection{Our Contribution}
+    We provide a new linkable ring signatures(PLSAG) which can add linkability to any lines in multi dimensional key set. Futhermore, We apply PLSAG to Monero's ring signatures, and add linkaility to odd-numbered lines in multi dimensional key set to satisfy a requirement of Ring CT. We consider PLSAG signature makes transaction size reduce and also a smaller computing request rather than CLSAG signatures. how much this sig can reduce ??? depends on n and m.
+
+\subsection{Related Work}
+    Multilayer Linkable Spontaneous Anonymous Group (MLSAG) signatures is Schnorr-like linkable ring signature scheme with a multi-layered public key set. Signer's any private key used for signing has linkability automatically. CLSAG ~\cite{clsag} signatures also use a multilayer key set, and concise version of MLSAG in Monero. The signer has m private keys in the key set, but the only first key image of the first private key has linkability, and the other key images of the other private keys called "Auxiliary key images" do not have linkability. actually, the Key images from the only first private are necessary for Monero on MLSAG, so linkability is removed from the other key images.It makes the size of the CLSAG signature reduced compared with MLSAG signatures, since CLSAG signatures only includes $c_{1}$and n random numbers, but MLSAG Signatures includes $c_{1}$ and $n\cdot m$ random numbers. Currently, CLSAG Signatures are used as the ring signatures on Monero. Triptych~\cite{triptych} is also a Linkable Ring Signature based on zero-knowledge proofs without a trusted setup, but the strong advantage is that the signature size increases with logarithmic size. The triptych will officially be implemented on Monero in near future. Triptych applies Pedersen Commitment and sigma protocol and uses a new way to aggregate public keys on Sigma protocol to construct logarithmic sized Linkable ring signature.
+    
+\section{Preliminaries}
+\subsection{Public parameters}
+    Let $\mathbb G$ be a cyclic group of prime order $l > 3 $in which the discrete logarithm problem is hard and the decisional and inverse decisional Diffie- Hellman assumptions hold, and let ${\mathbb Z}_{l}$ be its scalar field.\\
+    Let n be the number of anonymity set size, and m be the number of key set's layer. Let R be a set of public key $K_{i,j} [K_{1,1},K_{1,2},\ldots,K_{n,m}]$. Let $k_{i,j}$ be Private key. Define Public key $K_{i,j}=k_{i,j}G$\\
+    Let $H_n$ : $ \{0,1 \} ^* \rightarrow {\mathbb Z}_{l}$ and $H_p$ : $ \{0,1 \} ^* \rightarrow \mathbb G$ be two independent cryptographic hash functions. Let $M \in \{ 0,1 \}^*$ be message and $\pi $ be a secret index.
+    
+\subsection{Definition} 
+    \textbf{Definition 1.} A linkable ring signature (LRS) scheme $\Pi_{LRS}$  is a tuple of PPT algorithms (SETUP; KEYGEN; SIGN; VERIFY; LINK) satisfying the following set of constraints:
+    \begin{description}
+       % \item[SETUP]takes as input a security parameter  and produces as output some public setup parameters.
+        \item[KEYGEN] $(r) \rightarrow (s_{k},p_{k}) $: Generate a secret key $s_{k}$ and a public key $p_{k}$ randomly. It takes as input random number and outputs a private-public key pair. If r is not specified as a input, the secret key is generated at random.
+        \item[SIGN] $(s_{k},M,R) \rightarrow \sigma$: Generate a signature $\sigma $ with M and ring $R= \{ pk \ldots , pk_n \} $ using the private key $sk_{\pi}$, $\pi$ is a secret index satisfied $pk_\pi = sk_\pi G $.
+        \item[VERIFY] $(\sigma, M, R) \rightarrow \{ 0,1 \}$: Verify a signature $\sigma$ with message and ring. If output 0, the signature is rejected. If output 1, the signature is verified.
+        \item[LINK] $(\sigma, \sigma ') \rightarrow \{ 0,1 \}$: Decide if signature $\sigma $ and $\sigma '$ were singed using same private key. If different private key were used to sign the signatures, output 0. If same private key were used to sign the signatures, output 1.
+    \end{description}
+    Unforgetability is defined as no attacker who does not have a private key that belongs to the ring can create a forged signature.\\
+    \textbf{Definition 2.} Unforgeability\\
+    The adversary $\mathcal A $ can access to a key generation oracle KeyGen which returns $(s_{k},p_{k})$ to $\mathcal A $.\\
+    The adversary $\mathcal A $ can access to a corruption oracle CO. CO takes $(p_{k})$, if the key is corresponded to CO, outputs $(s_{k})$.\\
+    The adversary $\mathcal A $ also can access to a signing oracle SO, SO takes (X,M,R), and runs Sign(x,M,R)$\rightarrow \sigma$, and returens $\sigma$ to $\mathcal A$.\\
+    Finally, The adversary $\mathcal A $ outputs $(\sigma , M,R)$.\\
+    \\
+    Anonymity in LSAG has two properties, which are Signer Ambiguity and Unforgetability. Signer Ambiguity is defined as an Observer and a verifier must be able to determine the signer belongs to the ring, but they can not identify who created the signature. This property helped Monero to hide where the money came from.\\
+    \textbf{Definition 3.}anonymous\\
+    The adversary $\mathcal A $ can access to a key generation oracle KeyGen which returns $(s_{k},p_{k})$ to $\mathcal A $.\\
+    The adversary $\mathcal A $ selects a message M, and a Ring R, and indexes $i_0$ and $i_1$, and send them to a challenger. \\
+    The challenger selects a bit $b \in \{ 0,1 \}$ randomly, and generates the signature sign$(sk_{i_b},M,R)$, and send it to $\mathcal A $.\\
+    The adversary $\mathcal A $ selects a bit $b' \in \{ 0,1 \}$.\\
+    If Pr[b' = b] = 0.5 and $\mathcal A $ did not make any corruption queries after receiving the challenge bit, we say that the LRS is anonymous.\\
+    \\
+    Nonslanderability ensures that no signer can generate a signature which is determined to be linked by the Linkability algorithm with another signature which is not generated by the signer. In other words, it prevents adversaries from framing honest users.\\
+    \textbf{Definition 4.} non-slanderable\\
+    
+    
+    Linkability is defined as If a private key is used to two different signatures, then the signature should be linked. This ability is necessary for Monero to avoid a double-spending attack. In detail, every signature in Monero has a key image derived from the private key, so a miner must check every key image with all past key images on Monero before creating a block.\\
+    \textbf{Definition 5.} Linkability\\
+    The adversary $\mathcal A $ can create a public key $pk_i$, a message $M_i$, a ring $R_i$, and signature $\sigma_i$ for $i \in [0,k-1]$.\\
+    The adversary $\mathcal A $ also creates another message M, ring R and signature $\sigma $.\\
+    All tuples $(X_i,M_i,R_i,\sigma_i)$ and $M,R,\sigma)$ are sent to the challenger.
+    The challenger checks the following:\\
+    -Verify$(\sigma_i,M_i,R_i)=1$ for all i and Verify$(\sigma,M,R)=1$.\\
+    -For all $i=j$, we have Link$(\sigma_i,\sigma_j)$=Link$(\sigma_i,\sigma)=0$.\\
+    If all checks pass, The adversary $\mathcal A $ wins.\\
+    \\    
+    Non-frameability requires that an adversary be unable to generate a signature that links with an honest signature.
+    \textbf{Definition 6.} Non-frameability\\
+    The adversary $\mathcal A $ can access to the KeygenOracle, CO, signOracle.\\
+    The adversary $\mathcal A $ selects a public key pk which is generate by KeygenOracle, but not included to CO.\\
+    The adversary $\mathcal A $ makes a message M and Ring R, runs signOracle(pk,M,R)$\rightarrow \sigma$.\\
+    The adversary $\mathcal A $ makes a tuple $(M',R',\sigma ')$ and sends it to the challenger with $(pk,M,R,\sigma)$.\\
+    If Vefiry$(M',R',\sigma ')=0$ or if $\sigma'$ was prodused by signOracle, the challenger wins.\\
+    If Pr[Link$(\sigma, \sigma')=1$]=0, we can say that the LRS is Non-frameability.\\
+    \\
+    Correctness requires that a signature generated honestly will always verify.\\
+    \textbf{Definition 7.} Correctness. Consider this game between a challenger and a PPT adversary $\mathcal A $.\\
+    The challenger runs Keygen $\rightarrow (pk,sk)$ and send it to adversary $\mathcal A $.\\
+    The adversary $\mathcal A $ selects a ring R and a message M, and sends them to the challenger.\\
+    The challenger signs the message with Sign$(sk,M,R) \rightarrow \sigma$.\\
+    If Pr[Verify$(\sigma,M,R)=1$]=1, we can say that the LRS is perfectly correct.\\
+    
+\section{Construction of PLSAG}
+    In this section, we expalin the algorithm of PLSAG.
+    In Monero, a ring signature is used to prove that transactions are legitimate while the amount of money is kept secret. In this study, we propose an algorithm for PLSAG (Partial Linkable Spontaneous Anonymous Group) signatures, which is an improvement of the CLSAG signature, a ring signature currently implemented on Monero. Ring signatures have the ability that the verifier can not identify who among the ring members created the signature. PLSAG signatures have the characteristics of ring signatures, such as Unforgetability and Signer Ambiguity, and the ability to add linkability to the key images of the odd-numbered private keys in the $(n\cdot m)$key set. Linkability means that if the key image generated by the private key does not match any other key images generated on Monero in the past, it can be confirmed that the private key has not been used and a double-spending attack can be prevented.\\
+    In CLSAG signatures, Linkability can be added to the only first key images of the first private key in the $(n\cdot m)$key set, but in PLSAG signatures, we consider adding Linkability to odd-numbered private keys in the $(n\cdot m)$key set. In our algorithm PLSAG, the number of random numbers is reduced compared to CLSAG by aggregating the public keys and key images. CLSAG signatures require as many signatures as there are inputs, so the size of CLSAG signatures increases linearly with the number of inputs. In Monero, 2-CLSAG is used where the first line is the private keys of the transaction and the second line is used to prove the validity of the amount remittance. However, we designed PLSAG like one PLSAG signature is sufficient for one transaction regardless of the number of inputs. First, PLSAG signatures use 2m-CLSAG, with the private keys of the transactions on the odd-numbered lines and the validity of the amount of remittance on the even-numbered lines. Furthermore, it can prevent double-spending attacks by adding linkability to the odd-numbered lines. By extending the $(n\cdot m \cdot 2)$public key set to multiple m inputs and aggregating the public key set and key images, then PLSAG signatures can reduce the number of random numbers.\\
+    
+\subsection{General PLSAG algorithm}
+    \textbf{Signing Algorithm}
+    Public Parameter;\\ 
+    s: linkability line (ex) [1,3,5],  x: the number of linkability lines M: massage
+    \begin{enumerate}
+        \item Calculate Key Images$\tilde{K}_{s,j}=k_{\pi,j}{\cal H}_{p} (K_{\pi,s})$ for s, j=1,\ldots,m.
+        \item Generate random $\alpha,r_{1},\ldots,r_{n}$ except $r_{\pi}$.
+        \item Define linkability key images set $\tilde{K}=[\tilde{K}_{s1,1},\tilde{K}_{s1,2},\ldots,\tilde{K}_{sx,m}]$
+        \item Calculate aggregate public keys, key images, public keys.
+         $$ W_{i}= \sum^{m}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K})*K_{i,j} $$
+        $$ \tilde{W}_{s}= \sum^{m}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K})*\tilde{K}_{s,j} $$
+        \item Compute $c_{\pi+1}={\cal H}_{n}(T_{c}||R||m||\alpha G||\alpha {\cal H}_{p}(K_{\pi,s1})||\alpha {\cal H}_{p}(K_{\pi,s2})||\ldots||\alpha {\cal H}_{p}(K_{\pi,sx})) $
+        \item Compute for $i=\pi +1,\pi +2,\ldots,n,1,2,\ldots,\pi -1$, replacing $n+1 \rightarrow 1$\\
+        $c_{i+1}={\cal H}_{n}(T_{c}||R||m||r_{i}G+c_{i}W_{i}||r_{i}{\cal H}_{p}(K_{i,s1})+c_{i} \tilde{W}_{s1}||r_{i}{\cal H}_{p}(K_{i,s2})+c_{i} \tilde{W}_{s2}||\ldots||r_{i}{\cal H}_{p}(K_{i,sx})+c_{i} \tilde{W}_{sx}) $.
+        \item Define $r_{\pi}=\alpha - c_{\pi} w_{\pi}$ where $w_{\pi}=\sum^{m}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K})*k_{\pi,j}$\\
+        The signature is $\sigma (c_{1},r_{1},\ldots,r_{n})$ with key images $\tilde{K}$.
+    \end{enumerate}
+    
+    \textbf{Verifying Algorithm}
+    \begin{enumerate}
+        \item Check all Key Images $l\tilde{K}_{i,s}=0$.
+        \item Calculate aggregate public keys, key images.
+        \item Compute for $i=1,\ldots,n$, replacing $n+1 \rightarrow 1$\\
+        $c'_{i+1}={\cal H}_{n}(T_{c}||R||m||r_{i}G+c_{i}W_{i}||r_{i}{\cal H}_{p}(K_{i,s1})+c_{i} \tilde{W}_{s1}||r_{i}{\cal H}_{p}(K_{i,s2})+c_{i} \tilde{W}_{s2}||\ldots||r_{i}{\cal H}_{p}(K_{i,sx})+c_{i} \tilde{W}_{sx}) $.
+        \item If $c'_{1}=c_{1}$ then the signature is valid.
+    \end{enumerate}
+    
+\subsection{Correctness}
+    This chapter checks if PLSAG Signature works well or not and proves why it works. To speak simple, comparing $c_{i}$ between Signing and Verifying algorithm makes this signature works well from a cryptographic aspect.\\
+    $\bullet$ If $i\neq \pi $ then, clearly the values $c'_{i+1}=c_{i+1}$, 
+    because the verifying algorithm uses same $c_{1}$ at the beginning of start value and same calculation algorithm.\\
+    $\bullet$ If $i=\pi$ then, since $r_{\pi}=\alpha - c_{\pi}w_{\pi}$\\
+    $$r_{\pi}G+c_{\pi}W_{\pi}=(\alpha - c_{\pi}w_{\pi})G+ c_{\pi}W_{\pi}=\alpha G - c_{\pi}w_{\pi}G + c_{\pi}W_{\pi}=\alpha G$$
+    And,
+    $$r_{\pi}{\cal H}_{p}(K_{i,s1})+c_{\pi} \tilde{W}_{s1}= (\alpha - c_{\pi}w_{\pi}){\cal H}_{p}(K_{i,s1})+c_{\pi} \tilde{W}_{s1}= \alpha {\cal H}_{p}(K_{i,s1}) - c_{\pi}w_{\pi}{\cal H}_{p}(K_{i,s1})+c_{\pi} \tilde{W}_{s1}= \alpha {\cal H}_{p}(K_{i,s1})$$
+    Because of $w_{\pi}G=W_{\pi}$,$w_{\pi}{\cal H}_{p}(K_{i,s1})=\tilde{W}_{s1}$, $w_{\pi}{\cal H}_{p}(K_{i,3})=\tilde{W}_{2}$,$w_{\pi}{\cal H}_{p}(K_{i,sx})=\tilde{W}_{sx}$.\\
+    Therefore, it is also clear to find $c_{\pi + 1}=c'_{\pi +1}$.
+
+\section{Security}
+    Basically we use same definitions in ~\cite{clsag}, because our most idea and contraction of PLSAG algorithm is based on CLSAG signatures scheme.\\
+    \textbf{Theorem 1.}PLSAG is LSAG\\
+    Our PLSAG signature scheme satisfies the requirement to be a LSAG signature under definition 1.\\
+    \\
+    \textbf{Theorem 2.}unforgeable\\
+    Our PLSAG signature scheme satisfies the requirement to have unforgeability under definition 2.\\
+    \\
+    \textbf{Theorem 3.} anonymous\\
+    Our PLSAG signature scheme satisfies the requirement to be anonymous under definition 3.\\
+    \\
+    \textbf{Theorem 4.} non-slander\\
+    Our PLSAG signature scheme satisfies the requirement to be non-slander under definition 4.\\
+    \\
+    \textbf{Theorem 5.} (Linkability) The proposed PLSAG signature algorithm has linkability under definition 4.\\
+    Proof. We sat that valid, non-pracle signature triples from PLSAG signature algorithm with satisfying the Key genaration rule.\\
+    Assume that the adversary $\mathcal A $, while playing the game of definition 5, \\
+    \\
+    \textbf{Theorem 6.} Correctness\\
+    Our PLSAG signature scheme satisfies prefect Correctness with any situation under definition 6.\\
+
+\section{Application for Monero}
+     In this section, we describe an application of PLSAG signatures scheme for Monero.Normally, Monero requires two layers of public keys per input for a transaction: the first layer is used to prove ownership of the input transaction; the second layer is used to prove the legitimacy of the amount transferred, with the transfer amount kept secret. From the above, when using the PLSAG algorithm on Monero, twice as many key layers as the number of inputs are necessary. In other words, when a transaction has 3 inputs, 6 layers of public keys are needed. 
+
+
+    \vskip\baselineskip
+    
+    \textbf{Signing Algorithm}
+    \begin{enumerate}
+        \item Calculate Key Images$\tilde{K}_{s,j}=k_{\pi,j}{\cal H}_{p} (K_{\pi,s})$ for s=1,3,5, j=1,\ldots,6.
+        \item Generate random $\alpha,r_{1},\ldots,r_{n}$ except $r_{\pi}$.
+        \item Calculate aggregate public keys, key images, public keys.
+         $$ W_{i}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*K_{i,j} $$
+        $$ \tilde{W}_{1}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*\tilde{K}_{1,j} $$
+        $$ \tilde{W}_{2}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*\tilde{K}_{3,j} $$
+        $$ \tilde{W}_{3}= \sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*\tilde{K}_{5,j} $$
+        \item Compute $c_{\pi+1}={\cal H}_{n}(T_{c}||R||m||\alpha G||\alpha {\cal H}_{p}(K_{\pi,1})||\alpha {\cal H}_{p}(K_{\pi,3})||\alpha {\cal H}_{p}(K_{\pi,5})) $
+        \item Compute for $i=\pi +1,\pi +2,\ldots,n,1,2,\ldots,\pi -1$, replacing $n+1 \rightarrow 1$\\
+        $c_{i+1}={\cal H}_{n}(T_{c}||R||m||r_{i}G+c_{i}W_{i}||r_{i}{\cal H}_{p}(K_{i,1})+c_{i} \tilde{W}_{1}||r_{i}{\cal H}_{p}(K_{i,3})+c_{i} \tilde{W}_{2}||r_{i}{\cal H}_{p}(K_{i,5})+c_{i} \tilde{W}_{3}) $.
+        \item Define $r_{\pi}=\alpha - c_{\pi} w_{\pi}$ where $w_{\pi}=\sum^{6}_{j=1} {\cal H}_{n}(T_{j},R,\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6})*k_{\pi,j}$\\
+        The signature is $\sigma (c_{1},r_{1},\ldots,r_{n})$ with key images $\tilde{K}_{1,1},\ldots,\tilde{K}_{5,6}$.
+    \end{enumerate}
+    
+    \textbf{Verifying Algorithm}
+    \begin{enumerate}
+        \item Check all Key Images $l\tilde{K}_{i,s}=0$.
+        \item Calculate aggregate public keys, key images.
+        \item Compute for $i=1,\ldots,n$, replacing $n+1 \rightarrow 1$\\
+        $c'_{i+1}={\cal H}_{n}(T_{c}||R||m||r_{i}G+c_{i}W_{i}||r_{i}{\cal H}_{p}(K_{i,1})+c_{i} \tilde{W}_{1}||r_{i}{\cal H}_{p}(K_{i,3})+c_{i} \tilde{W}_{2}||r_{i}{\cal H}_{p}(K_{i,5})+c_{i} \tilde{W}_{3}) $.
+        \item If $c'_{1}=c_{1}$ then the signature is valid.
+    \end{enumerate}
+    \vskip\baselineskip
+    
+    \textbf{Correctness}\\
+    This chapter checks if PLSAG Signature works well or not and proves why it works. To speak simple, comparing $c_{i}$ between Signing and Verifying algorithm makes this signature works well from a cryptographic aspect.\\
+    $\bullet$ If $i\neq \pi $ then, clearly the values $c'_{i+1}=c_{i+1}$, 
+    because the verifying algorithm uses same $c_{1}$ at the beginning of start value and same calculation algorithm.\\
+    $\bullet$ If $i=\pi$ then, since $r_{\pi}=\alpha - c_{\pi}w_{\pi}$\\
+    $$r_{\pi}G+c_{\pi}W_{\pi}=(\alpha - c_{\pi}w_{\pi})G+ c_{\pi}W_{\pi}=\alpha G - c_{\pi}w_{\pi}G + c_{\pi}W_{\pi}=\alpha G$$
+    And,
+    $$r_{\pi}{\cal H}_{p}(K_{i,1})+c_{\pi} \tilde{W}_{1}= (\alpha - c_{\pi}w_{\pi}){\cal H}_{p}(K_{i,1})+c_{\pi} \tilde{W}_{1}= \alpha {\cal H}_{p}(K_{i,1}) - c_{\pi}w_{\pi}{\cal H}_{p}(K_{i,1})+c_{\pi} \tilde{W}_{1}= \alpha {\cal H}_{p}(K_{i,1})$$
+    Because of $w_{\pi}G=W_{\pi}$,$w_{\pi}{\cal H}_{p}(K_{i,1})=\tilde{W}_{1}$, $w_{\pi}{\cal H}_{p}(K_{i,3})=\tilde{W}_{2}$,$w_{\pi}{\cal H}_{p}(K_{i,5})=\tilde{W}_{3}$.\\
+    Therefore, it is also clear to find $c_{\pi + 1}=c'_{\pi +1}$.
+
+\section{Efficiency}
+
+    Table 1 compares signature size between existing LSAG and proposed PLSAG. n is the number of anonymity set, and m is the number of inputs. The number of the random numbers is used for calculation ring signatures, and the number of Key Images is used for avoiding Double spending. Basically, the sum of the size of random numbers and key images is the signature size. Firstly, the size of the CLSAG signature is perfectly smaller than that of the MLSAG signature. Secondly, the CLSAG signature is smaller than the PLSAG signature for the number of key Images but larger than the PLSAG signature for the number of random numbers.\\ The signature size of PLSAG with existing linkable ring signatures (MLSAG and CLSAG) and Triptych, which will be implemented in Monero, is compared with N Anonymity set size and 3 inputs, in Figure 2. For large anonymity set size $(N>64)$, the signature size of Triptych is the smallest, and PLSAG is smaller than that of MLSAG and CLSAG. On the other hand, for small anonymity set size $(N<64)$, the signature size of PLSAG is smaller than that of Triptych.\\ Figure 3 illustrates signature sizes for four LSAG with 10 Anonymity set sizes and M inputs. It is obvious that the signature size of Triptych is smaller than that of CLSAG and MLSAG in all ranges. The signature size of PLSAG is the smallest among 4 LSAG for the small number of input$(M<5)$, however that of PLSAG increases with the square of M. Thus, the signature size of PLSAG is larger than other signatures for the large number of input$(M>10)$.
+    
+    \begin{table}[hbtp]  %Comparison size and signature
+        \caption{size and signature}
+        \label{table:data_type}
+        \centering
+        \begin{tabular}{|l|cc|}
+            \hline
+            Ring Signature  & Random Numbers (F) &  Key Images (G) \\
+            \hline
+            MLSAG  & $(2n+1)m$  & $2m$ \\
+            CLSAG  & $(n+1)m$   & $2m$ \\
+            PLSAG  & $n+1$  & $2m^2$ \\
+            Triptych  & $(\lg (n)+3)m$   &  $(2\lg (n)+6)m$ \\
+            \hline
+        \end{tabular}
+    \end{table}
+    
+    \begin{figure}[htbp]
+        \begin{minipage}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[keepaspectratio, scale=0.45]{figures/result_n_m=3.png}
+        \caption{anonymity set size N with 3 inputs}
+        \end{minipage}
+        \begin{minipage}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[keepaspectratio, scale=0.45]{figures/result_n=10_m.png}
+        \caption{10 anonymity set size with M Input}
+        \end{minipage}
+    \end{figure}
+    
+\section{Conclusion}
+    We propose a linkable ring signatures algorithm, PLSAG, for Monero which can reduce the signature size in a limited range $(6<N<64)$ compared to the current linkable ring signatures,every transaction need one PLSAG signature regardless of the number of inputs, since PLSAG signatures can add linkability to odd-numbered key images of the private key in the public key set. But the size for key images increases with the square of M and the size of signatures also increases linearly with anonymity set size, so PLSAG signatures have a demerit in the case that there are many inputs to the transaction.
